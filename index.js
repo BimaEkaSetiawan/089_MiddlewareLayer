@@ -131,3 +131,8 @@ app.get('/', async (req, res) => {
     )
 })
 
+app.post(
+    '/biodata',
+    validateBody(biodataSchema),
+    async (req, res) => {
+       
