@@ -1,6 +1,6 @@
 import express from 'express';
 import pg from 'pg';
-import Joi from 'joi';
+import Joi, { allow } from 'joi';
 
 const app = express();
 const port = 3000;
@@ -26,6 +26,14 @@ app.use((req, res, next) => {
     res.on('finish', () => {
         const duration = Date.now() - start 
 
-        
+        console.log({
+            method: req.method,
+            url: req.originalUrl,
+            status: res.statusCode,
+            duration: `${duration}ms`
+        })
+    })
 
-        
+    next()
+})
+
