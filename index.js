@@ -1,6 +1,6 @@
 import express from 'express';
 import pg from 'pg';
-import Joi, { allow } from 'joi';
+import Joi from 'joi';
 
 const app = express();
 const port = 3000;
@@ -53,7 +53,7 @@ function errorResponse(res, message, status, error = null) {
         success: false,
         message,
         data: null,
-        error: details,
+        error: error,
     });
 }
 
@@ -74,11 +74,11 @@ const idSchema = Joi.object({
 
 function validateBody(schema) {
     return (req, res, next) => {
-        const {error, value} = schema.validateBody(req.body,{
+        const { error, value } = schema.validate(req.body, {
             abortEarly: false,
             convert: true,
             allowUnknown: false,
-        })
+        });
 
         if (error) {
             return errorResponse(
@@ -89,12 +89,12 @@ function validateBody(schema) {
                     field: item.path.join('.'),
                     message: item.message,
                 }))
-            )
+            );
         }
 
-        req.body = value
-        next()
-    }
+        req.body = value;
+        next();
+    };
 }
 
 //Middleware untuk validasi parameter ID
@@ -133,7 +133,7 @@ app.get('/', async (req, res) => {
 
 app.post(
     '/biodata',
-    validateBody(biodataSchema),
+    validateBody(bioSchema),
     async (req, res) => {
         const { id, nama, nim, kelas } = req.body
 
@@ -154,10 +154,10 @@ app.post(
 app.put(
     '/biodata/:id',
     validateParams(idSchema),
-    validateBody(biodataSchema.fork(
-        ['nama', 'nim', 'kelas'],
-        field => field.required()
-    ).fork(['id'], field => field.forbidden())),
+    validateBody(bioSchema.fork(
+    ['nama', 'nim', 'kelas'],
+    field => field.required()
+).fork(['id'], field => field.forbidden())),
     async (req, res) => {
         const { id } = req.params
         const { nama, nim, kelas } = req.body
